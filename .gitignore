@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual Environment
+venv/
+.venv/
+backend/venv/
+backend/.venv/
+
+# Environment Files
+.env
+
+# Database
+*.db
+
+# Node
+node_modules/
+frontend/node_modules/
+
+# Build files
+dist/
+frontend/dist/
+
+# Generated PDFs
+generated/
+backend/generated/
+
+# VS Code
+.vscode/
+
+# OS
+Thumbs.db
+.DS_Store
