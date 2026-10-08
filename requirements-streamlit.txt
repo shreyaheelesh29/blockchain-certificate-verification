@@ -1,0 +1,12 @@
+streamlit>=1.40
+web3>=7.0
+python-dotenv>=1.0
+SQLAlchemy>=2.0
+reportlab>=4.0
+qrcode[pil]>=8.0
+Pillow>=10.0
+fastapi>=0.115
+python-multipart>=0.0.9
+passlib[bcrypt]>=1.7
+python-jose>=3.3
+bcrypt>=4.0
