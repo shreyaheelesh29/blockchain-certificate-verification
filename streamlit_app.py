@@ -16,6 +16,16 @@ if str(BACKEND) not in sys.path:
 
 load_dotenv(ROOT / ".env")
 
+# Streamlit Community Cloud stores deployment values in st.secrets. The
+# existing backend services read these settings from environment variables.
+try:
+    for key in ("GANACHE_RPC_URL", "CONTRACT_ADDRESS", "BLOCKCHAIN_PRIVATE_KEY", "ADMIN_PASSWORD"):
+        if key in st.secrets and not os.getenv(key):
+            os.environ[key] = str(st.secrets[key])
+except Exception:
+    # Local runs can continue to use a .env file without a secrets.toml.
+    pass
+
 from app.database.db import Base, SessionLocal, engine
 from app.models.certificate import Certificate
 from app.services.hashing_service import calculate_file_hash
@@ -65,6 +75,33 @@ with st.sidebar:
     st.caption("Hashing: SHA-256")
     st.caption("Smart Contract: Solidity")
     st.caption("Database: SQLite")
+
+
+def require_admin():
+    """Require a deployment secret before showing sensitive/admin features."""
+    configured_password = os.getenv("ADMIN_PASSWORD", "")
+    if not configured_password:
+        st.error(
+            "Admin actions are disabled. Configure ADMIN_PASSWORD in "
+            "Streamlit Secrets before enabling certificate administration."
+        )
+        st.stop()
+
+    if not st.session_state.get("is_admin"):
+        with st.form("admin_login"):
+            password = st.text_input("Admin password", type="password")
+            submitted = st.form_submit_button("Sign in")
+        if submitted:
+            import hmac
+            if hmac.compare_digest(password, configured_password):
+                st.session_state["is_admin"] = True
+                st.rerun()
+            st.error("Incorrect password.")
+        st.stop()
+
+
+if page in ("Dashboard", "Issue Certificate", "Revoke Certificate"):
+    require_admin()
 
 
 def get_db():
