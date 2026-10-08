@@ -26,6 +26,38 @@ except Exception:
     # Local runs can continue to use a .env file without a secrets.toml.
     pass
 
+missing_settings = [
+    key
+    for key in ("GANACHE_RPC_URL", "CONTRACT_ADDRESS", "BLOCKCHAIN_PRIVATE_KEY")
+    if not os.getenv(key)
+]
+if missing_settings:
+    st.set_page_config(
+        page_title="CertiChain | Setup required",
+        page_icon="🔐",
+        layout="wide",
+    )
+    st.title("🔐 CertiChain")
+    st.warning("Blockchain configuration is not complete yet.")
+    st.write(
+        "Add the blockchain settings under this app's "
+        "Streamlit Cloud **Settings → Secrets** to enable certificate "
+        "issuance, verification, details, and revocation."
+    )
+    st.code(
+        'GANACHE_RPC_URL = "https://YOUR_CLOUD_REACHABLE_RPC_ENDPOINT"\n'
+        'CONTRACT_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS"\n'
+        'BLOCKCHAIN_PRIVATE_KEY = "YOUR_ADMIN_WALLET_PRIVATE_KEY"\n'
+        'ADMIN_PASSWORD = "A_STRONG_UNIQUE_PASSWORD"',
+        language="toml",
+    )
+    st.info(
+        "A local Ganache URL such as 127.0.0.1:7545 is not reachable "
+        "from Streamlit Cloud. Keep private keys in Streamlit Secrets; "
+        "never commit them to GitHub."
+    )
+    st.stop()
+
 from app.database.db import Base, SessionLocal, engine
 from app.models.certificate import Certificate
 from app.services.hashing_service import calculate_file_hash
